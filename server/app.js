@@ -4,6 +4,14 @@ const morgan = require('morgan')
 const app = express()
 module.exports = app
 
+// if not in production environment, access secret.js on local machine
+if (process.env.NODE_ENV !== 'production') {
+  require('../secrets');
+}
+
+// api key
+const API_KEY = process.env.SECRET;
+
 // logging middleware
 app.use(morgan('dev'))
 
