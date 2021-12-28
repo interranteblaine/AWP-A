@@ -1,6 +1,6 @@
 'use strict'
 
-const {db, models: {User} } = require('../server/db')
+const {db, models: {User, Ticker, DataDate, Price} } = require('../server/db')
 
 /**
  * seed - this function clears the database, updates tables to
@@ -17,13 +17,26 @@ async function seed() {
   ])
 
   console.log(`seeded ${users.length} users`)
+
+  // Creating Tickers
+  const tickers = await Promise.all([
+    Ticker.create({ symbol: 'FZROX', description: 'Fidelity ZERO Total Market Index Fund' }),
+    Ticker.create({ symbol: 'FSKAX', description: 'Fidelity Total Market Index Fund' }),
+    Ticker.create({ symbol: 'FZILX', description: 'Fidelity ZERO International Index Fund' }),
+    Ticker.create({ symbol: 'FTIHX', description: 'Fidelity Total International Index Fund' }),
+    Ticker.create({ symbol: 'FXNAX', description: 'Fidelity U.S. Bond Index Fund' }),
+    Ticker.create({ symbol: 'VTSAX', description: 'Vanguard Total Stock Market Index Fund Admiral Shares' }),
+    Ticker.create({ symbol: 'VTIAX', description: 'Vanguard Total International Stock Index Fund Admiral Shares' }),
+    Ticker.create({ symbol: 'VBTLX', description: 'Vanguard Total Bond Market Index Fund Admiral Shares' }),
+    Ticker.create({ symbol: 'SWTSX', description: 'Schwab Total Stock Market Index Fund' }),
+    Ticker.create({ symbol: 'SWISX', description: 'Schwab International Index Fund' }),
+    Ticker.create({ symbol: 'SWAGX', description: 'Schwab U.S. Aggregate Bond Index Fund' }),
+  ])
+
+  console.log(`seeded ${tickers.length} tickers`)
+
   console.log(`seeded successfully`)
-  return {
-    users: {
-      cody: users[0],
-      murphy: users[1]
-    }
-  }
+  return
 }
 
 /*
