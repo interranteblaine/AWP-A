@@ -2,8 +2,8 @@ const axios = require('axios');
 const fs = require('fs');
 
 const generateApiUrl = (tickerSymbol) => {
-    const startDate = '2020-12-01'; //YYYY-MM-DD
-    const endDate = '2021-12-01'; //YYYY-MM-DD
+    const startDate = '2021-01-01'; //YYYY-MM-DD
+    const endDate = '2021-12-30'; //YYYY-MM-DD
     const period = 'm'; //d for daily, w for weekly, m for monthly
     const order = 'd'; //d for descending (from new to old), a for ascending
     const format = 'json'; //csv or json
