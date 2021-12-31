@@ -1,12 +1,93 @@
 'use strict'
 
-const {db, models: {User, Ticker, DataDate, Price} } = require('../server/db')
+const axios = require('axios');
+const fs = require('fs');
+const {db, models: {User, Ticker, DataDate, Price} } = require('../server/db');
+const data = require('./priceData.json');
 
+const priceDataFilename = 'priceData.json';
+const tickerSymbols = ['FZROX', 'FSKAX', 'FZILX', 'FTIHX', 'FXNAX', 'VTSAX', 'VTIAX', 'VBTLX', 'SWTSX', 'SWISX', 'SWAGX'];
+
+const generateApiUrl = (tickerSymbol) => {
+  const startDate = '2021-01-01'; //YYYY-MM-DD
+  const endDate = '2021-12-30'; //YYYY-MM-DD
+  const period = 'm'; //d for daily, w for weekly, m for monthly
+  const order = 'd'; //d for descending (from new to old), a for ascending
+  const format = 'json'; //csv or json
+  const apiKey = process.env.APIKEY;
+  let symbolName = tickerSymbol;
+  let exchangeId = 'US';   
+  return `https://eodhistoricaldata.com/api/eod/${symbolName}.${exchangeId}?from=${startDate}&to=${endDate}&period=${period}&fmt=${format}&order=${order}&api_token=${apiKey}`;
+}
+
+const saveJSON = (filename = '', json = "''") => {
+  return fs.writeFileSync(filename, JSON.stringify(json, null, 2));
+}
+
+const savePriceInfo = async (tickersArr) => {
+  try {
+    const promises = await Promise.all(tickersArr.map(async (ticker) => {
+      let apiUrl = generateApiUrl(ticker);
+      let { data } = await axios.get(apiUrl);
+      return {
+        symbol: ticker,
+        data
+      };
+    }));
+
+    saveJSON(priceDataFilename, promises)
+  
+    return;
+  } catch (error) {
+    console.log('Save Price Info', error)    
+  }
+}
+
+const loadPriceInfo = (data) => {
+  try {
+    const symbolsList = {};
+    const datesList = {};
+    const priceDataWide = [];
+        
+    for (let i = 0; i < data.length; i++) {
+      let symbol = data[i].symbol;
+      if (!symbolsList[symbol]) symbolsList[symbol] = i + 1;
+          
+      let priceData = data[i].data;
+      for (let j = 0; j < priceData.length; j++) {
+        let { date, open, high, low, close, adjusted_close, volume } = priceData[j];
+
+        if (!datesList[date]) datesList[date] = j + 1;
+
+        let wideData = {
+          symbol,
+          date,
+          open,
+          high,
+          low,
+          close,
+          adjusted_close,
+          volume
+        };
+        priceDataWide.push(wideData);
+      }
+    }
+
+    const symbols = Object.keys(symbolsList);
+    const dates = Object.keys(datesList);
+
+    return { priceDataWide, symbols, dates };
+  } catch (error) {
+    console.log('Load Price Info', error)
+  }
+}
 /**
  * seed - this function clears the database, updates tables to
  *      match the models, and populates the database.
  */
 async function seed() {
+  const { priceDataWide, symbols, dates } = loadPriceInfo(data);
+
   await db.sync({ force: true }) // clears db and matches models to tables
   console.log('db synced!')
 
@@ -19,21 +100,32 @@ async function seed() {
   console.log(`seeded ${users.length} users`)
 
   // Creating Tickers
-  const tickers = await Promise.all([
-    Ticker.create({ symbol: 'FZROX', description: 'Fidelity ZERO Total Market Index Fund' }),
-    Ticker.create({ symbol: 'FSKAX', description: 'Fidelity Total Market Index Fund' }),
-    Ticker.create({ symbol: 'FZILX', description: 'Fidelity ZERO International Index Fund' }),
-    Ticker.create({ symbol: 'FTIHX', description: 'Fidelity Total International Index Fund' }),
-    Ticker.create({ symbol: 'FXNAX', description: 'Fidelity U.S. Bond Index Fund' }),
-    Ticker.create({ symbol: 'VTSAX', description: 'Vanguard Total Stock Market Index Fund Admiral Shares' }),
-    Ticker.create({ symbol: 'VTIAX', description: 'Vanguard Total International Stock Index Fund Admiral Shares' }),
-    Ticker.create({ symbol: 'VBTLX', description: 'Vanguard Total Bond Market Index Fund Admiral Shares' }),
-    Ticker.create({ symbol: 'SWTSX', description: 'Schwab Total Stock Market Index Fund' }),
-    Ticker.create({ symbol: 'SWISX', description: 'Schwab International Index Fund' }),
-    Ticker.create({ symbol: 'SWAGX', description: 'Schwab U.S. Aggregate Bond Index Fund' }),
-  ])
-
+  const tickers = await Promise.all(symbols.map(symbol => Ticker.create({ symbol: symbol })))
   console.log(`seeded ${tickers.length} tickers`)
+  
+  // Creating Dates
+  const dataDates = await Promise.all(dates.map(date => DataDate.create({date})))
+  console.log(`seeded ${dataDates.length} dates`)
+
+  // Creating price data with associations
+  const priceData = await Promise.all(priceDataWide.map(async data => {
+    let [date, dateWasCreated] = await DataDate.findOrCreate({where: {date: data.date}});
+    let [symbol, tickerWasCreated] = await Ticker.findOrCreate({where: {symbol: data.symbol}});
+    return Price.create(
+      {
+        open: data.open,
+        high: data.high,
+        low: data.low,
+        close: data.close,
+        adjustedClose: data.adjusted_close,
+        volume: data.volume,
+        tickerId: symbol.id,
+        datadateId: date.id
+      }
+      )
+    }));
+
+  console.log(`seeded ${priceData.length} price data instances`)
 
   console.log(`seeded successfully`)
   return
