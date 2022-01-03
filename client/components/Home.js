@@ -1,6 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import PortfolioForm from './PortfolioForm'
+import TickerForm from './TickerForm'
+import Portfolio from './Portfolio'
 
 /**
  * COMPONENT
@@ -11,7 +12,8 @@ export const Home = props => {
   return (
     <div>
       <h3>Welcome, {username}</h3>
-      <PortfolioForm />
+      <TickerForm />
+      <Portfolio />
     </div>
   )
 }

@@ -4,10 +4,12 @@ import thunkMiddleware from 'redux-thunk'
 import {composeWithDevTools} from 'redux-devtools-extension'
 import auth from './auth'
 import symbolsReducer from './symbols'
+import portfolioReducer from './portfolio'
 
 const reducer = combineReducers({
   auth,
-  symbols: symbolsReducer
+  symbols: symbolsReducer,
+  portfolio: portfolioReducer
 })
 
 const middleware = composeWithDevTools(
