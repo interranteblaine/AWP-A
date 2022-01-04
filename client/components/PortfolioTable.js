@@ -5,28 +5,26 @@ import { fetchPortfolios, removeFromPortfolio } from '../store/portfolio'
 class PortfolioTable extends React.Component {
     constructor() {
         super();
-        this.growth = this.growth.bind(this);
     }
 
     componentDidMount() {
         this.props.loadPortfolio(this.props.userId);
     }
     
-    totalWeight(portfolioGroup) {
+    totalWeightCalc(portfolioGroup) {
         return portfolioGroup.reduce((acc, item) => acc + item.weight, 0)
     }
 
-    startVal(pricesArr) {
+    getStartPrice(pricesArr) {
         return pricesArr[0].adjustedClose;
     }
 
-    endVal(pricesArr) {
+    getEndPrice(pricesArr) {
         return pricesArr[pricesArr.length - 1].adjustedClose;
     }
 
-    growth(pricesArr) {
-        const growth = this.endVal(pricesArr)/this.startVal(pricesArr) - 1;
-        return (growth * 100);
+    growthCalc(startVal, endVal) {
+        return endVal/startVal - 1;
     }
 
     formatNum(leadingSymbol, trailingSymbol, num) {
@@ -40,10 +38,9 @@ class PortfolioTable extends React.Component {
     }
     
     render() {
-        const portfolio = this.props.portfolio;
+        const { removeItem, portfolio } = this.props;
         const groups = Object.keys(portfolio);
-        const { removeItem } = this.props;
-        const { startVal, endVal, growth, totalWeight, formatNum } = this;
+        const { getStartPrice, getEndPrice, growthCalc, totalWeightCalc, formatNum } = this;
         return (
             <table>
                 <thead>
@@ -55,12 +52,20 @@ class PortfolioTable extends React.Component {
                         <th>Price/Share (start)</th>
                         <th>Price/Share (end)</th>
                         <th>Growth</th>
-                        <th>% Weight (end)</th>
                     </tr>
                 </thead>
-                {groups.map(group => (
+                {groups.map(group => {
+                    let startBalance = 1;
+                    let endBalance = 0;
+                    return (
                     <tbody key={group}>
-                        {portfolio[group].map(item => (
+                        {portfolio[group].map(item => {
+                            let startPrice = getStartPrice(item.ticker.prices);
+                            let endPrice = getEndPrice(item.ticker.prices);
+                            let growth = growthCalc(startPrice, endPrice);
+                            let itemEndValue = (item.weight / startPrice) * endPrice;
+                            endBalance += itemEndValue;
+                            return (
                             <tr key={item.id}>
                                 <td>{item.ticker.symbol}</td>
                                 <td>{formatNum(null, '%', item.weight * 100)}</td>
@@ -68,18 +73,24 @@ class PortfolioTable extends React.Component {
                                 <td>
                                     <button onClick={() => removeItem(item.id)}>Remove</button>
                                 </td>
-                                <td>{formatNum('$', null, startVal(item.ticker.prices))}</td>
-                                <td>{formatNum('$', null, endVal(item.ticker.prices))}</td>
-                                <td>{formatNum(null, '%', growth(item.ticker.prices))}</td>
-                                <td></td>
+                                <td>{formatNum('$', null, startPrice)}</td>
+                                <td>{formatNum('$', null, endPrice)}</td>
+                                <td>{formatNum(null, '%', growth * 100)}</td>
                             </tr>
-                        ))}
+                            )
+                        })}
                         <tr>
                             <td>Total:</td>
-                            <td>{formatNum(null, '%', totalWeight(portfolio[group]) * 100)}</td>
+                            <td>{formatNum(null, '%', totalWeightCalc(portfolio[group]) * 100)}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>Portfolio Growth:</td>
+                            <td>{formatNum(null, '%', ((endBalance / startBalance) - 1) * 100)}</td>
                         </tr>
                     </tbody>
-                ))}
+                    )
+                })}
             </table>
         )
     }
