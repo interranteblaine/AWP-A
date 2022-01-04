@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { models: { User, Portfolio, Ticker, Price, DataDate }} = require('../db')
+const { models: { Portfolio, Ticker, Price, DataDate }} = require('../db')
 const { requireToken } = require('./gateKeepingMiddleware')
 module.exports = router
 
@@ -15,7 +15,15 @@ router.post('/', requireToken, async (req, res, next) => {
         const returnItem = await Portfolio.findByPk(newItem.id, {
             include: {
                 model: Ticker,
-                attributes: ['id', 'symbol', 'description']
+                attributes: ['id', 'symbol', 'description'],
+                include: {
+                    model: Price,
+                    attributes: ['id', 'adjustedClose'],
+                    include: {
+                        model: DataDate,
+                        attributes: ['id', 'date']
+                    }
+                }
             },
             attributes: ['id', 'weight', 'portGroup']
         });
@@ -34,11 +42,25 @@ router.get('/:userId', requireToken, async (req, res, next) => {
             },
             include: {
                 model: Ticker,
-                attributes: ['id', 'symbol', 'description']
+                attributes: ['id', 'symbol', 'description'],
+                include: {
+                    model: Price,
+                    attributes: ['id', 'adjustedClose'],
+                    include: {
+                        model: DataDate,
+                        attributes: ['id', 'date']
+                    }
+                }
             },
             attributes: ['id', 'weight', 'portGroup']
         });
-        res.json(portfolio);
+        if (!portfolio) {
+            const error = new Error("Portfolio not found");
+            error.stack = 404;
+            next(error);
+        } else {
+            res.json(portfolio);
+        }
     } catch (error) {
         next(error)
     }
