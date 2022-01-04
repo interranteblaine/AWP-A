@@ -25,7 +25,10 @@ router.post('/', requireToken, async (req, res, next) => {
                     }
                 }
             },
-            attributes: ['id', 'weight', 'portGroup']
+            attributes: ['id', 'weight', 'portGroup'],
+            order: [
+                [ Ticker, Price, DataDate, 'date', 'ASC'],
+            ]
         });
         res.json(returnItem);
     } catch (error) {
@@ -52,7 +55,10 @@ router.get('/:userId', requireToken, async (req, res, next) => {
                     }
                 }
             },
-            attributes: ['id', 'weight', 'portGroup']
+            attributes: ['id', 'weight', 'portGroup'],
+            order: [
+                [ Ticker, Price, DataDate, 'date', 'ASC'],
+            ]
         });
         if (!portfolio) {
             const error = new Error("Portfolio not found");
