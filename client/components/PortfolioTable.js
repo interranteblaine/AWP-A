@@ -85,7 +85,7 @@ class PortfolioTable extends React.Component {
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td>Portfolio Growth:</td>
+                            <td>Balance Growth:</td>
                             <td>{formatNum(null, '%', ((endBalance / startBalance) - 1) * 100)}</td>
                         </tr>
                     </tbody>
