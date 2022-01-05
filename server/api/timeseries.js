@@ -29,7 +29,7 @@ router.get('/:userId', requireToken, async (req, res, next) => {
             error.stack = 404;
             next(error);
         } else {
-
+            // flatten date table for easier access to nested arrays / objects
             const flattenDataTable = (data) => {
                 const flatDataTable = [];
                 for (let i = 0; i < data.length; i++) {
@@ -43,46 +43,74 @@ router.get('/:userId', requireToken, async (req, res, next) => {
                 }
                 return flatDataTable;
             }
-
-            const getGroups = (flatDataTable) => {
-                const groups = flatDataTable.reduce((acc, d) => {
-                    if (!acc[d.portGroup]) {
-                        acc[d.portGroup] = [d.symbol];
-                    } else if (!acc[d.portGroup].includes(d.symbol)) {
-                        acc[d.portGroup].push(d.symbol);
-                    }
-                    return acc;
-                }, {})
-                return groups
+            // helper function to get unique dates and groups
+            const getUniqueItems = (flatDataTable, key) => {
+                const result = flatDataTable.reduce((a, d) => {
+                    if (!a[d[key]]) a[d[key]] = 1;
+                    return a;
+                }, {});
+                return Object.keys(result);
+            } 
+            // helper function to parse dates from YYYY-MM-DD to Date Objects to sort/find min date
+            const parseDate = (dateStr) => {
+                let d = dateStr.split('-');
+                return new Date(d[0], d[1] - 1, d[2]); // month is 0-indexed
             }
-
-            const groupAndSortData = (flatDataTable, portGroup, symbol, startBalance) => {
-                const groupSortArr = flatDataTable
-                                    .filter(d => d.portGroup === portGroup)
-                                    .filter(d => d.symbol === symbol)
-                                    .sort((a, b) => a.date > b.date ? 1 : -1);
-                const shares = startBalance * groupSortArr[0].weight / groupSortArr[0].adjustedClose;
-                return groupSortArr.reduce((acc, d) => {
-                    acc.push({ date: d.date, [symbol]: shares * d.adjustedClose })
-                    return acc;
+            // Calculates shares and current value, and transforms data into "client-format" 
+            const calcAssetValues = (flatDataTable, startBalance) => {
+                const balance = startBalance;
+                const groups = getUniqueItems(flatDataTable, 'portGroup');
+                const dates = getUniqueItems(flatDataTable, 'date');
+                const startDate = dates.reduce((a, b) => parseDate(a) < parseDate(b) ? a : b);
+                // dateGroupPrice = [{date: 'YYYY-MM-DD', group: 'K'}, {...}, ...]
+                const dateGroupPrice = dates.reduce((a, date) => {
+                    groups.forEach(group => {
+                        a.push({ date, group });
+                    });
+                    return a;
                 }, []);
+                // shares = { A: {}, B: {}, ...}
+                const shares = groups.reduce((a, b) => {
+                    if (!a[b]) a[b] = {};
+                    return a;
+                }, {});
+                // Modifies dateGroupPrice table to include prices and asset allocation weights
+                // Adds the quantity of shares for each asset within each group to the shares object
+                // shares = balance * weight / adjustedClose
+                for (let i = 0; i < flatDataTable.length; i++) {
+                    let item = flatDataTable[i];
+                    if (item.date === startDate) {
+                        shares[item.portGroup][item.symbol] = balance * item.weight / item.adjustedClose;
+                    }
+                    for (let j = 0; j < dateGroupPrice.length; j++) {
+                        let dGP = dateGroupPrice[j];
+                        if (dGP.date === item.date && dGP.group === item.portGroup) {
+                            dGP[item.symbol] = {
+                                price: item.adjustedClose,
+                                weight: item.weight
+                            }
+                        }
+                    }
+                }
+                // adds the shares and value to each asset in datePriceGroup
+                dateGroupPrice.forEach(d => {
+                    let group = d.group;
+                    for (let key in d) {
+                        if (key !== 'date' && key !== 'group') {
+                            d[key].shares = shares[group][key];
+                            d[key].value = shares[group][key] * d[key].price
+                        }
+                    }
+                });
+                return dateGroupPrice;
             }
-
-            // {date: '', symbol1: value, symbolN....}
-            const constructTable = (data) => {
+            const constructData = (data) => {
                 const startBalance = 6000;
                 const flatTable = flattenDataTable(data);
-                const groups = getGroups(flatTable);
-                
-                // think through groupTable to combine from like portGroups
-
-                const groupTable = groupAndSortData(flatTable, 'A', 'FTIHX', startBalance);
-                return groupTable;
+                const transformedData = calcAssetValues(flatTable, startBalance)
+                return transformedData;
             }
-
-            const result = constructTable(data)
-
-            res.json(result);
+            res.json(constructData(data));
         }
     } catch (error) {
         next(error)

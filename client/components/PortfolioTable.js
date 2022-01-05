@@ -46,7 +46,7 @@ class PortfolioTable extends React.Component {
                 <thead>
                     <tr>
                         <th>Symbol</th>
-                        <th>% Weight (start)</th>
+                        <th>Allocation</th>
                         <th>Group</th>
                         <th>Remove</th>
                         <th>Price/Share (start)</th>
