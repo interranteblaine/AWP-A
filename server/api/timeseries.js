@@ -95,10 +95,22 @@ router.get('/:userId', requireToken, async (req, res, next) => {
                 // adds the shares and value to each asset in datePriceGroup
                 dateGroupPrice.forEach(d => {
                     let group = d.group;
+                    let totalValue = 0;
                     for (let key in d) {
                         if (key !== 'date' && key !== 'group') {
                             d[key].shares = shares[group][key];
-                            d[key].value = shares[group][key] * d[key].price
+                            d[key].value = shares[group][key] * d[key].price;
+                            totalValue += shares[group][key] * d[key].price;
+                        }
+                    }
+                    d.totalValue = totalValue;
+                });
+                // adds asset allocation to each asset
+                dateGroupPrice.forEach(d => {
+                    let totalValue = d.totalValue;
+                    for (let key in d) {
+                        if (key !== 'date' && key !== 'group' && key !== 'totalValue') {
+                            d[key].allocation = d[key].value / totalValue;
                         }
                     }
                 });
