@@ -5,11 +5,13 @@ import {composeWithDevTools} from 'redux-devtools-extension'
 import auth from './auth'
 import symbolsReducer from './symbols'
 import portfolioReducer from './portfolio'
+import analysisReducer from './analysis'
 
 const reducer = combineReducers({
   auth,
   symbols: symbolsReducer,
-  portfolio: portfolioReducer
+  portfolio: portfolioReducer,
+  dataTable: analysisReducer
 })
 
 const middleware = composeWithDevTools(
