@@ -114,7 +114,8 @@ router.get('/:userId', requireToken, async (req, res, next) => {
                         }
                     }
                 });
-                return dateGroupPrice;
+                // return data table that is sorted on date ASC
+                return dateGroupPrice.sort((a, b) => parseDate(a.date).getTime() - parseDate(b.date).getTime());
             }
             const constructData = (data) => {
                 const startBalance = 6000;

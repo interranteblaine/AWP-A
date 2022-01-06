@@ -1,6 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import { fetchPortfolios, removeFromPortfolio } from '../store/portfolio'
+import Analysis from './Analysis';
 
 class PortfolioTable extends React.Component {
     constructor() {
@@ -42,56 +43,58 @@ class PortfolioTable extends React.Component {
         const groups = Object.keys(portfolio);
         const { getStartPrice, getEndPrice, growthCalc, totalWeightCalc, formatNum } = this;
         return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Allocation</th>
-                        <th>Group</th>
-                        <th>Remove</th>
-                        <th>Price/Share (start)</th>
-                        <th>Price/Share (end)</th>
-                        <th>Growth</th>
-                    </tr>
-                </thead>
-                {groups.map(group => {
-                    let startBalance = 1;
-                    let endBalance = 0;
-                    return (
-                    <tbody key={group}>
-                        {portfolio[group].map(item => {
-                            let startPrice = getStartPrice(item.ticker.prices);
-                            let endPrice = getEndPrice(item.ticker.prices);
-                            let growth = growthCalc(startPrice, endPrice);
-                            let itemEndValue = (item.weight / startPrice) * endPrice;
-                            endBalance += itemEndValue;
-                            return (
-                            <tr key={item.id}>
-                                <td>{item.ticker.symbol}</td>
-                                <td>{formatNum(null, '%', item.weight * 100)}</td>
-                                <td>{item.portGroup}</td>
-                                <td>
-                                    <button onClick={() => removeItem(item.id)}>Remove</button>
-                                </td>
-                                <td>{formatNum('$', null, startPrice)}</td>
-                                <td>{formatNum('$', null, endPrice)}</td>
-                                <td>{formatNum(null, '%', growth * 100)}</td>
-                            </tr>
-                            )
-                        })}
+            <div>
+                <table>
+                    <thead>
                         <tr>
-                            <td>Total:</td>
-                            <td>{formatNum(null, '%', totalWeightCalc(portfolio[group]) * 100)}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>Balance Growth:</td>
-                            <td>{formatNum(null, '%', ((endBalance / startBalance) - 1) * 100)}</td>
+                            <th>Symbol</th>
+                            <th>Allocation</th>
+                            <th>Group</th>
+                            <th>Remove</th>
+                            <th>Price/Share (start)</th>
+                            <th>Price/Share (end)</th>
+                            <th>Growth</th>
                         </tr>
-                    </tbody>
-                    )
-                })}
-            </table>
+                    </thead>
+                    {groups.map(group => {
+                        let startBalance = 1;
+                        let endBalance = 0;
+                        return (
+                        <tbody key={group}>
+                            {portfolio[group].map((item, i) => {
+                                let startPrice = getStartPrice(item.ticker.prices);
+                                let endPrice = getEndPrice(item.ticker.prices);
+                                let growth = growthCalc(startPrice, endPrice);
+                                let itemEndValue = (item.weight / startPrice) * endPrice;
+                                endBalance += itemEndValue;
+                                return (
+                                <tr key={item.id}>
+                                    <td>{item.ticker.symbol}</td>
+                                    <td>{formatNum(null, '%', item.weight * 100)}</td>
+                                    <td>{item.portGroup}</td>
+                                    <td>
+                                        <button onClick={() => removeItem(item.id)}>Remove</button>
+                                    </td>
+                                    <td>{formatNum('$', null, startPrice)}</td>
+                                    <td>{formatNum('$', null, endPrice)}</td>
+                                    <td>{formatNum(null, '%', growth * 100)}</td>
+                                </tr>
+                                )
+                            })}
+                            <tr>
+                                <td>Total:</td>
+                                <td>{formatNum(null, '%', totalWeightCalc(portfolio[group]) * 100)}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>Balance Growth:</td>
+                                <td>{formatNum(null, '%', ((endBalance / startBalance) - 1) * 100)}</td>
+                            </tr>
+                        </tbody>
+                        )
+                    })}
+                </table>
+            </div>
         )
     }
 }

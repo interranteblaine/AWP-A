@@ -37,38 +37,40 @@ class TickerForm extends React.Component {
     render() {
         const { symbols } = this.props;
         return (
-            <form onSubmit={this.handleSubmit}>
-                <label htmlFor="symbolId">Symbol</label>
-                <select id="symbolId" name="symbolId" onChange={this.handleChange}>
-                    <option hidden="hidden">Select a symbol</option>
-                    {symbols.map(symbol => (
-                        <option 
-                            key={symbol.id}
-                            value={symbol.id}
-                            >
-                            {symbol.symbol}
-                        </option>
-                    ))}
-                </select>
-                <label htmlFor="weight">% Weight</label>
-                <input
-                    type="number"
-                    id="weight"
-                    name="weight"
-                    min="0"
-                    max="100"
-                    onChange={this.handleChange}
-                    value={this.state.weight}
-                    >
-                </input>
-                <label htmlFor="portGroup">Group</label>
-                <select id="portGroup" name="portGroup" onChange={this.handleChange}>
-                    <option hidden="hidden">Select group</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                </select>
-                <button type="submit">Add to group</button>
-            </form>
+            <div>
+                <form onSubmit={this.handleSubmit}>
+                    <label htmlFor="symbolId">Symbol</label>
+                    <select id="symbolId" name="symbolId" onChange={this.handleChange}>
+                        <option hidden="hidden">Select a symbol</option>
+                        {symbols.map(symbol => (
+                            <option 
+                                key={symbol.id}
+                                value={symbol.id}
+                                >
+                                {symbol.symbol}
+                            </option>
+                        ))}
+                    </select>
+                    <label htmlFor="weight">% Weight</label>
+                    <input
+                        type="number"
+                        id="weight"
+                        name="weight"
+                        min="0"
+                        max="100"
+                        onChange={this.handleChange}
+                        value={this.state.weight}
+                        >
+                    </input>
+                    <label htmlFor="portGroup">Group</label>
+                    <select id="portGroup" name="portGroup" onChange={this.handleChange}>
+                        <option hidden="hidden">Select group</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                    <button type="submit">Add to group</button>
+                </form>
+            </div>
         )
     }
 }
