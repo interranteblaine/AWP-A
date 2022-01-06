@@ -41,10 +41,12 @@ class Analysis extends React.Component {
         const { getStrokeColor } = this;
         return (
             <div>
+                <h4>Portfolio Value (assumes $6k invested)</h4>
                 <VictoryChart
                     theme={VictoryTheme.material}
                     width={550}
                     height={300}
+                    padding={{ top: 10, bottom: 50, left: 50, right: 50 }}
                     >
                     {
                         groups.map((g, i) => (
