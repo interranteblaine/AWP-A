@@ -24,7 +24,7 @@ router.get('/:userId', requireToken, async (req, res, next) => {
                 }
             }
         });
-        if (!data) {
+        if (!data.length) {
             const error = new Error("Time series data not found");
             error.stack = 404;
             next(error);

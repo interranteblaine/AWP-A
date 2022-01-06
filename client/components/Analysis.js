@@ -1,7 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import { VictoryChart, VictoryLine, VictoryTheme, VictoryAxis } from 'victory'
-import { fetchDataTable } from '../store/analysis'
+import { fetchDataTable, resetChartData } from '../store/analysis'
 
 class Analysis extends React.Component {
     constructor() {
@@ -13,6 +13,9 @@ class Analysis extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        if (this.props.userId !== prevProps.userId) {
+            this.props.loadData(this.props.userId)
+        }
         const prevPort = prevProps.portfolio;
         const currPort = this.props.portfolio;
         const currGroups = Object.keys(currPort);
@@ -21,6 +24,10 @@ class Analysis extends React.Component {
                 this.props.loadData(this.props.userId)
             }
         })
+    }
+
+    componentWillUnmount() {
+        this.props.resetChart()
     }
     
     getStrokeColor(idx) {
@@ -78,7 +85,8 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
     return {
-        loadData: (userId) => dispatch(fetchDataTable(userId))
+        loadData: (userId) => dispatch(fetchDataTable(userId)),
+        resetChart: () => dispatch(resetChartData())
     }
 }
 

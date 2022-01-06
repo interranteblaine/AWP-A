@@ -23,6 +23,12 @@ export const fetchDataTable = (userId) => {
     }
 }
 
+export const resetChartData = () => {
+    return dispatch => {
+        dispatch(setDataTable([]))
+    }
+}
+
 export default function analysisReducer (state = [], action) {
     switch (action.type) {
         case SET_DATA_TABLE:
