@@ -82,13 +82,13 @@ class PortfolioTable extends React.Component {
                                 )
                             })}
                             <tr>
-                                <td>Total:</td>
-                                <td>{formatNum(null, '%', totalWeightCalc(portfolio[group]) * 100)}</td>
+                                <td>{portfolio[group].length ? 'Total:' : ''}</td>
+                                <td>{portfolio[group].length ? formatNum(null, '%', totalWeightCalc(portfolio[group]) * 100) : ''}</td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td>Balance Growth:</td>
-                                <td>{formatNum(null, '%', ((endBalance / startBalance) - 1) * 100)}</td>
+                                <td>{portfolio[group].length ? 'Balance Growth:' : ''}</td>
+                                <td>{portfolio[group].length ? formatNum(null, '%', ((endBalance / startBalance) - 1) * 100) : ''}</td>
                             </tr>
                         </tbody>
                         )

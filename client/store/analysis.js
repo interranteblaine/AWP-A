@@ -19,6 +19,7 @@ export const fetchDataTable = (userId) => {
             }
         } catch (error) {
             console.log(error)
+            dispatch(setDataTable([]));
         }
     }
 }

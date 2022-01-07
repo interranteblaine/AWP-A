@@ -13,16 +13,12 @@ class Analysis extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.userId !== prevProps.userId) {
-            this.props.loadData(this.props.userId)
-        }
+        const { userId, loadData, portfolio: currPort } = this.props;
         const prevPort = prevProps.portfolio;
-        const currPort = this.props.portfolio;
         const currGroups = Object.keys(currPort);
+        if (userId !== prevProps.userId) loadData(userId);
         currGroups.forEach(cG => {
-            if (currPort[cG].length !== prevPort[cG].length) {
-                this.props.loadData(this.props.userId)
-            }
+            if (currPort[cG].length !== prevPort[cG].length) loadData(userId);
         })
     }
 
