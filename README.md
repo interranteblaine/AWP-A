@@ -1,5 +1,8 @@
 # FS-App-Template
 
+Youtube link to tour app:
+https://www.youtube.com/watch?v=ZDH4Ns2TvGo
+
 ## Setup
 
 To use this as boilerplate, you'll need to take the following steps:

@@ -5,7 +5,7 @@ import {logout} from '../store'
 
 const Navbar = ({handleClick, isLoggedIn}) => (
   <div className='root-app-navbar header'>
-    <h2>Index Fund Portfolio Comparison</h2>
+    <h2>Index Fund Portfolio Comparison Tool</h2>
     <nav>
       {isLoggedIn ? (
         <div>
