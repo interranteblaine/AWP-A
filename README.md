@@ -1,4 +1,6 @@
-# FS-App-Template
+# ASYNC WEEK PROJECT
+
+I used Victory, a data-viz library, in a full-stack app for analyzing the performance of different simple annual investment strategies involving index funds. Victory’s documentation is substantial, making it easy to get up and running quickly.
 
 Youtube link to tour app:
 https://www.youtube.com/watch?v=ZDH4Ns2TvGo
