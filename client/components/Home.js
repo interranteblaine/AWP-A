@@ -11,9 +11,8 @@ export const Home = props => {
   const {username} = props
 
   return (
-    <div>
-      <h3>Welcome, {username}</h3>
-      <TickerForm />
+    <div className='root-app-routes-home content'>
+      <TickerForm userName={username}/>
       <PortfolioTable />
       <Analysis />
     </div>

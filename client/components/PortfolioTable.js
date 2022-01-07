@@ -43,7 +43,7 @@ class PortfolioTable extends React.Component {
         const groups = Object.keys(portfolio);
         const { getStartPrice, getEndPrice, growthCalc, totalWeightCalc, formatNum } = this;
         return (
-            <div>
+            <div className='root-app-routes-home-portfolio table'>
                 <table>
                     <thead>
                         <tr>
@@ -73,7 +73,7 @@ class PortfolioTable extends React.Component {
                                     <td>{formatNum(null, '%', item.weight * 100)}</td>
                                     <td>{item.portGroup}</td>
                                     <td>
-                                        <button onClick={() => removeItem(item.id)}>Remove</button>
+                                        <button className='remove-button' onClick={() => removeItem(item.id)}>Remove</button>
                                     </td>
                                     <td>{formatNum('$', null, startPrice)}</td>
                                     <td>{formatNum('$', null, endPrice)}</td>
@@ -81,7 +81,7 @@ class PortfolioTable extends React.Component {
                                 </tr>
                                 )
                             })}
-                            <tr>
+                            <tr className='last-row'>
                                 <td>{portfolio[group].length ? 'Total:' : ''}</td>
                                 <td>{portfolio[group].length ? formatNum(null, '%', totalWeightCalc(portfolio[group]) * 100) : ''}</td>
                                 <td></td>

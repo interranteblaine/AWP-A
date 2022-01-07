@@ -1,6 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import { VictoryChart, VictoryLine, VictoryTheme, VictoryAxis } from 'victory'
+import { VictoryChart, VictoryLine, VictoryTheme, VictoryAxis, VictoryLegend, VictoryVoronoiContainer, VictoryTooltip } from 'victory'
 import { fetchDataTable, resetChartData } from '../store/analysis'
 
 class Analysis extends React.Component {
@@ -36,25 +36,52 @@ class Analysis extends React.Component {
         const groups = Object.keys(portfolio);
         const { getStrokeColor } = this;
         return (
-            <div>
-                <h4>Portfolio Value (assumes $6k invested)</h4>
+            <div className='root-app-routes-home-analysis chart'>
+                <h3>Portfolio Value (assumes $6k invested)</h3>
                 <VictoryChart
                     theme={VictoryTheme.material}
                     width={550}
-                    height={300}
-                    padding={{ top: 10, bottom: 50, left: 50, right: 50 }}
+                    height={250}
+                    padding={{ top: 5, bottom: 50, left: 50, right: 50 }}
+                    containerComponent={
+                        <VictoryVoronoiContainer 
+                        voronoiDimension='x'
+                        labels={({ datum }) => `$${(datum.totalValue / 1000).toFixed(2)}k` }
+                        labelComponent={
+                            <VictoryTooltip 
+                                constrainToVisibleArea
+                                cornerRadius={0}
+                                flyoutStyle={{ fill: 'white', stroke: 'gainsboro'}}
+                            />
+                        }
+                        />
+                    }
                     >
+                    <VictoryLegend
+                        x={60}
+                        y={5}
+                        orientation='horizontal'
+                        gutter={20}
+                        style={{ border: { stroke: "black" }, title: {fontSize: 20 } }}
+                        data={groups.map((g, i) => ({name: g, symbol: { fill: getStrokeColor(i), type: "minus"}}))}
+                    />
                     {
                         groups.map((g, i) => (
                             <VictoryLine
                             key={g}
                             style={{
                                 data: { stroke: getStrokeColor(i) },
-                                parent: { border: "1px solid #ccc"}
+                                parent: { border: "1px solid #ccc"},
+                                labels: { fill: getStrokeColor(i) }
                             }}
                             data={dataTable.filter(d => d.group === g)}
                             x="date"
                             y="totalValue"
+                            animate={{
+                                onExit: {
+                                  duration: 500,
+                                  before: () => ({ _y: 0 })
+                                }}}
                         />
                         ))
                     }

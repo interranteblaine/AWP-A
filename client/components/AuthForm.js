@@ -9,25 +9,36 @@ const AuthForm = props => {
   const {name, displayName, handleSubmit, error} = props
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} name={name}>
-        <div>
-          <label htmlFor="username">
-            <small>Username</small>
-          </label>
-          <input name="username" type="text" />
-        </div>
-        <div>
-          <label htmlFor="password">
-            <small>Password</small>
-          </label>
-          <input name="password" type="password" />
-        </div>
-        <div>
-          <button type="submit">{displayName}</button>
-        </div>
-        {error && error.response && <div> {error.response.data} </div>}
-      </form>
+    <div className='content'>
+      <div className='root-app-routes-credentials form-auth'>
+        <h3>Welcome, login or sign up!</h3>
+        <form onSubmit={handleSubmit} name={name}>
+          <div>
+            <label htmlFor="username">
+              <small>Username:</small>
+            </label>
+            <input name="username" type="text" />
+          </div>
+          <div>
+            <label htmlFor="password">
+              <small>Password:</small>
+            </label>
+            <input name="password" type="password" />
+          </div>
+          <div>
+            <button type="submit">{displayName}</button>
+          </div>
+          {error && error.response && <div> {error.response.data} </div>}
+        </form>
+      </div>
+      <div className='tech'>
+        <img src="victory.svg" alt="victory" id="victory"/>
+        <img src="react.png" alt="react" id="react"/>
+        <img src="redux.png" alt="redux" id="redux"/>
+        <img src="express.png" alt="express" id="express"/>
+        <img src="sequelize.png" alt="sequelize" id="sequelize"/>
+        <img src="postgre.png" alt="postgre" id="postgre"/>
+      </div>
     </div>
   )
 }
